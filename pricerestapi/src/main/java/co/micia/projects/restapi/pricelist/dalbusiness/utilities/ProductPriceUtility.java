@@ -32,7 +32,7 @@ public class ProductPriceUtility {
         return products;
     }
 
-    private BigDecimal calculateFinalFreight(TBLBoxTypePT boxType, BigDecimal cubesPerCarrier, Integer pack,
+    BigDecimal calculateFinalFreight(TBLBoxTypePT boxType, BigDecimal cubesPerCarrier, Integer pack,
             BigDecimal freshCutValue) {
         if (pack == null || pack <= 0) {
             throw new IllegalArgumentException("Inventory pack must be greater than zero");
@@ -65,6 +65,11 @@ public class ProductPriceUtility {
         return products;
     }
 
+    BigDecimal applyMarkdown(BigDecimal price, int markdown) {
+        BigDecimal markdownRate = BigDecimal.valueOf(markdown).divide(ONE_HUNDRED, CALCULATION_SCALE, RoundingMode.HALF_UP);
+        return price.multiply(BigDecimal.ONE.subtract(markdownRate)).setScale(MONEY_SCALE, RoundingMode.HALF_UP);
+    }
+
     public List<CodigoProductoDTO> getInventaryProductCode(List<TBLinventoryPT> inventory) {
         List<CodigoProductoDTO> products = new ArrayList<>();
         for (TBLinventoryPT item : inventory) {
@@ -74,7 +79,21 @@ public class ProductPriceUtility {
         return products;
     }
 
-    private String ensureNoDuplicateName(String name) {
+    String ensureNoDuplicateName(String name) {
         return name.charAt(0) + "0" + name.charAt(name.length() - 1);
+    }
+
+    // Test helper methods (package-private for test access)
+    BigDecimal calculateFinalFreightForTest(TBLBoxTypePT boxType, BigDecimal cubesPerCarrier, Integer pack,
+            BigDecimal freshCutValue) {
+        return calculateFinalFreight(boxType, cubesPerCarrier, pack, freshCutValue);
+    }
+
+    BigDecimal applyMarkdownForTest(BigDecimal price, int markdown) {
+        return applyMarkdown(price, markdown);
+    }
+
+    String ensureNoDuplicateNameForTest(String name) {
+        return ensureNoDuplicateName(name);
     }
 }

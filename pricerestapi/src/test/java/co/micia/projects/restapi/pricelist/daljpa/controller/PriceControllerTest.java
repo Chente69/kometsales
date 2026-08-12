@@ -42,4 +42,48 @@ class PriceControllerTest {
         mockMvc.perform(get("/api/products/companies/{id}", 999L))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void returnsNoContentForUnknownCompanyInventory() throws Exception {
+        mockMvc.perform(get("/api/products/companies/{id}", 999L))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void returnsNoContentForUnknownCustomer() throws Exception {
+        mockMvc.perform(get("/api/products/customers/{id}", 999L))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void returnsNoContentForUnknownCompanyCodes() throws Exception {
+        mockMvc.perform(get("/api/products/companies/{id}/codes", 999L))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void returnsTestCompanyInventoryWithCalculatedFreight() throws Exception {
+        mockMvc.perform(get("/api/products/companies/{id}", 4L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.companyId").value(4L))
+                .andExpect(jsonPath("$.products").isArray())
+                .andExpect(jsonPath("$.products[0].productName").value("Red Roses 23cm"));
+    }
+
+    @Test
+    void returnsTestCustomerPricesWithMarkdown() throws Exception {
+        mockMvc.perform(get("/api/products/customers/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].price").value(1.05));
+    }
+
+    @Test
+    void companyInventoryResponseHasAllRequiredFields() throws Exception {
+        mockMvc.perform(get("/api/products/companies/{id}", 4L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.companyId").exists())
+                .andExpect(jsonPath("$.products[*].productName").exists())
+                .andExpect(jsonPath("$.products[*].basePrice").exists())
+                .andExpect(jsonPath("$.products[*].finalFreight").exists());
+    }
 }
